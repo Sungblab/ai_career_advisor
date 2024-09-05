@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>AI 기반 고등학생 진로 탐색 서비스</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lucide@latest"></script>
     <link
       href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap"
       rel="stylesheet"
@@ -53,6 +54,29 @@
       .form-section.active {
         display: block;
       }
+      .help-icon {
+        cursor: pointer;
+        vertical-align: middle;
+        margin-left: 5px;
+      }
+      .tooltip {
+        display: none;
+        position: absolute;
+        background-color: #f9f9f9;
+        border: 1px solid #ddd;
+        padding: 10px;
+        border-radius: 4px;
+        z-index: 1;
+        max-width: 300px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      }
+      .tooltip ul {
+        margin-top: 5px;
+        padding-left: 20px;
+      }
+      .tooltip li {
+        margin-bottom: 3px;
+      }
     </style>
   </head>
   <body class="bg-gray-100">
@@ -96,6 +120,7 @@
                   name="name"
                   class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                   required
+                  placeholder="예: 홍길동"
                 />
               </div>
               <div>
@@ -110,6 +135,7 @@
                   name="age"
                   class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                   required
+                  placeholder="예: 17"
                 />
               </div>
               <div>
@@ -160,29 +186,50 @@
                 <label
                   for="favorite_subject"
                   class="block text-sm font-medium text-gray-700 mb-1"
-                  >좋아하는 과목</label
-                >
+                  >좋아하는 과목
+                  <i class="help-icon" data-lucide="help-circle"></i>
+                </label>
                 <input
                   type="text"
                   id="favorite_subject"
                   name="favorite_subject"
                   class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                   required
+                  placeholder="예: 수학, 과학, 영어"
                 />
+                <div class="tooltip">
+                  좋아하는 과목 예시:
+                  <ul>
+                    <li>국어: 문학, 독서, 화법과 작문</li>
+                    <li>수학: 수학, 수학I, 수학II, 미적분, 확률과 통계</li>
+                    <li>영어: 영어, 영어회화, 영어독해와 작문</li>
+                    <li>과학: 물리학, 화학, 생명과학, 지구과학</li>
+                    <li>사회: 역사, 지리, 경제, 정치와 법</li>
+                    <li>예체능: 음악, 미술, 체육</li>
+                  </ul>
+                </div>
               </div>
               <div>
                 <label
                   for="disliked_subject"
                   class="block text-sm font-medium text-gray-700 mb-1"
-                  >싫어하는 과목</label
-                >
+                  >싫어하는 과목
+                  <i class="help-icon" data-lucide="help-circle"></i>
+                </label>
                 <input
                   type="text"
                   id="disliked_subject"
                   name="disliked_subject"
                   class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                   required
+                  placeholder="예: 국어, 역사, 체육"
                 />
+                <div class="tooltip">
+                  싫어하는 과목을 파악하는 것은 진로 선택에 도움이 될 수 있습니다. 
+                  예를 들어, 수학을 싫어한다면 수학 중심의 전공은 피하는 것이 좋을 수 있습니다. 
+                  하지만 싫어하는 과목이라도 중요할 수 있으니, 
+                  왜 싫어하는지 생각해보고 극복 방법을 찾아보는 것도 좋습니다.
+                </div>
               </div>
             </div>
           </div>
@@ -192,46 +239,83 @@
             <h3 class="text-xl font-semibold mb-4">진로 및 관심사</h3>
             <div class="space-y-4">
               <div>
-                <label
-                  for="interests"
-                  class="block text-sm font-medium text-gray-700 mb-1"
-                  >관심사 (쉼표로 구분)</label
-                >
+                <label for="interests" class="block text-sm font-medium text-gray-700 mb-1">
+                  관심사 (쉼표로 구분)
+                  <i class="help-icon" data-lucide="help-circle"></i>
+                </label>
                 <input
                   type="text"
                   id="interests"
                   name="interests"
                   class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  placeholder="예: 음악, 과학, 요리, 여행, 환경 보호"
                   required
                 />
+                <div class="tooltip">
+                  다양한 관심사 예시:
+                  <ul>
+                    <li>예술: 그림 그리기, 사진 촬영, 악기 연주, 춤</li>
+                    <li>과학: 우주, 생물학, 화학 실험, 로봇공학</li>
+                    <li>기술: 프로그래밍, 3D 프린팅, 가상현실(VR)</li>
+                    <li>스포츠: 축구, 수영, 요가, e스포츠</li>
+                    <li>사회: 봉사활동, 환경 보호, 인권 문제</li>
+                    <li>문화: 영화, 독서, 패션, 요리</li>
+                    <li>기타: 여행, 애완동물 돌보기, 정원 가꾸기</li>
+                  </ul>
+                </div>
               </div>
               <div>
-                <label
-                  for="hobbies"
-                  class="block text-sm font-medium text-gray-700 mb-1"
-                  >취미 (쉼표로 구분)</label
-                >
+                <label for="hobbies" class="block text-sm font-medium text-gray-700 mb-1">
+                  취미 (쉼표로 구분)
+                  <i class="help-icon" data-lucide="help-circle"></i>
+                </label>
                 <input
                   type="text"
                   id="hobbies"
                   name="hobbies"
                   class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  placeholder="예: 독서, 게임, 등산, 요리, 영화 감상"
                   required
                 />
+                <div class="tooltip">
+                  취미 활동 예시:
+                  <ul>
+                    <li>창작 활동: 글쓰기, 그림 그리기, 음악 작곡</li>
+                    <li>운동: 조깅, 자전거 타기, 댄스, 요가</li>
+                    <li>게임: 보드게임, 비디오 게임, 퍼즐</li>
+                    <li>수집: 우표, 동전, 피규어</li>
+                    <li>학습: 새로운 언어 배우기, 악기 연주, 요리</li>
+                    <li>야외 활동: 캠핑, 낚시, 사진 촬영</li>
+                    <li>DIY: 가구 만들기, 뜨개질, 원예</li>
+                  </ul>
+                </div>
               </div>
               <div>
-                <label
-                  for="career_interests"
-                  class="block text-sm font-medium text-gray-700 mb-1"
-                  >관심 있는 직업군</label
-                >
+                <label for="career_interests" class="block text-sm font-medium text-gray-700 mb-1">
+                  관심 있는 직업군
+                  <i관심 있는 직업군
+                  <i class="help-icon" data-lucide="help-circle"></i>
+                </label>
                 <input
                   type="text"
                   id="career_interests"
                   name="career_interests"
                   class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  placeholder="예: IT 개발자, 의사, 교사, 디자이너, 연구원"
                   required
                 />
+                <div class="tooltip">
+                  다양한 직업군 예시:
+                  <ul>
+                    <li>과학기술: 소프트웨어 엔지니어, 데이터 과학자, 인공지능 전문가</li>
+                    <li>의료: 의사, 간호사, 물리치료사, 약사, 의료기기 개발자</li>
+                    <li>교육: 교사, 교수, 특수교육 전문가, 교육 콘텐츠 제작자</li>
+                    <li>예술: 그래픽 디자이너, 영화감독, 음악 프로듀서, 게임 디자이너</li>
+                    <li>경영/금융: 기업가, 재무 분석가, 마케팅 전문가, 투자 상담사</li>
+                    <li>법률/공공: 변호사, 판사, 정책 분석가, 외교관</li>
+                    <li>환경/에너지: 환경 공학자, 재생에너지 전문가, 기후변화 연구원</li>
+                  </ul>
+                </div>
               </div>
             </div>
           </div>
@@ -244,40 +328,82 @@
                 <label
                   for="extracurricular"
                   class="block text-sm font-medium text-gray-700 mb-1"
-                  >참여 중인 동아리 활동</label
                 >
+                  참여 중인 동아리 활동
+                  <i class="help-icon" data-lucide="help-circle"></i>
+                </label>
                 <input
                   type="text"
                   id="extracurricular"
                   name="extracurricular"
                   class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  placeholder="예: 과학 동아리, 봉사 동아리, 독서 토론 동아리"
                 />
+                <div class="tooltip">
+                  동아리 활동 예시:
+                  <ul>
+                    <li>학술: 과학 실험 동아리, 수학 올림피아드 동아리, 영어 토론 동아리</li>
+                    <li>예술: 미술 동아리, 밴드 동아리, 연극 동아리, 사진 동아리</li>
+                    <li>체육: 축구부, 농구부, 요가 동아리, 등산 동아리</li>
+                    <li>봉사: 환경 보호 동아리, 지역사회 봉사 동아리, 멘토링 동아리</li>
+                    <li>기술: 로봇공학 동아리, 코딩 동아리, 3D 프린팅 동아리</li>
+                    <li>문화: 영화 감상 동아리, 요리 동아리, 문예창작 동아리</li>
+                  </ul>
+                </div>
               </div>
               <div>
                 <label
                   for="volunteer"
                   class="block text-sm font-medium text-gray-700 mb-1"
-                  >봉사활동 경험</label
                 >
+                  봉사활동 경험
+                  <i class="help-icon" data-lucide="help-circle"></i>
+                </label>
                 <textarea
                   id="volunteer"
                   name="volunteer"
                   rows="3"
                   class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  placeholder="예: 지역 도서관에서 책 정리 봉사, 노인복지관에서 말벗 봉사"
                 ></textarea>
+                <div class="tooltip">
+                  봉사활동 경험 예시:
+                  <ul>
+                    <li>교육: 저소득층 학생 학습 멘토링, 다문화 가정 한국어 교육</li>
+                    <li>환경: 지역 공원 청소, 재활용 캠페인 참여</li>
+                    <li>사회복지: 노인복지관 급식 봉사, 장애인 시설 보조</li>
+                    <li>의료: 헌혈 캠페인 참여, 보건소 업무 보조</li>
+                    <li>문화: 지역 축제 운영 보조, 박물관 도슨트</li>
+                    <li>동물보호: 유기동물 보호소 활동, 야생동물 구조 센터 봉사</li>
+                  </ul>
+                </div>
               </div>
               <div>
                 <label
                   for="achievements"
                   class="block text-sm font-medium text-gray-700 mb-1"
-                  >주요 성과 또는 수상 경력</label
                 >
+                  주요 성과 또는 수상 경력
+                  <i class="help-icon" data-lucide="help-circle"></i>
+                </label>
                 <textarea
                   id="achievements"
                   name="achievements"
                   rows="3"
                   class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  placeholder="예: 전국 과학 경진대회 은상, 교내 영어 말하기 대회 1등"
                 ></textarea>
+                <div class="tooltip">
+                  성과 및 수상 경력 예시:
+                  <ul>
+                    <li>학업: 전국 수학 올림피아드 입상, 과학 발명품 경진대회 수상</li>
+                    <li>예술: 청소년 미술 대전 특선, 전국 학생 음악 콩쿠르 입상</li>
+                    <li>체육: 전국 체육대회 메달 획득, 교내 스포츠 리그 우승</li>
+                    <li>외국어: TOEFL/TOEIC 고득점, 일본어/중국어 능력시험 고급 취득</li>
+                    <li>리더십: 학생회장 역임, 모의유엔 대회 의장상 수상</li>
+                    <li>봉사: 연간 봉사활동 100시간 이상 인증, 지역사회 공헌 표창</li>
+                  </ul>
+                </div>
               </div>
             </div>
           </div>
@@ -290,42 +416,85 @@
                 <label
                   for="mbti"
                   class="block text-sm font-medium text-gray-700 mb-1"
-                  >MBTI (알고 있다면)</label
                 >
+                  MBTI (알고 있다면)
+                  <i class="help-icon" data-lucide="help-circle"></i>
+                </label>
                 <input
                   type="text"
                   id="mbti"
                   name="mbti"
                   class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  placeholder="예: INTJ, ESFP"
                 />
+                <div class="tooltip">
+                  MBTI는 성격 유형을 나타내는 지표입니다. 16가지 유형이 있으며, 각각 4개의 지표로 구성됩니다:
+                  <ul>
+                    <li>E(외향) / I(내향)</li>
+                    <li>S(감각) / N(직관)</li>
+                    <li>T(사고) / F(감정)</li>
+                    <li>J(판단) / P(인식)</li>
+                  </ul>
+                  예: INFP, ESTJ, ENFJ 등
+                </div>
               </div>
               <div>
                 <label
                   for="strengths"
                   class="block text-sm font-medium text-gray-700 mb-1"
-                  >자신의 강점 (3가지)</label
                 >
+                  자신의 강점 (3가지)
+                  <i class="help-icon" data-lucide="help-circle"></i>
+                </label>
                 <input
                   type="text"
                   id="strengths"
                   name="strengths"
                   class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                   required
+                  placeholder="예: 책임감, 창의력, 의사소통 능력"
                 />
+                <div class="tooltip">
+                  강점 예시:
+                  <ul>
+                    <li>리더십: 팀을 이끌고 동기부여하는 능력</li>
+                    <li>분석력: 복잡한 문제를 체계적으로 해결하는 능력</li>
+                    <li>창의력: 새로운 아이디어를 제시하고 혁신적인 솔루션을 찾는 능력</li>
+                    <li>적응력: 변화하는 환경에 빠르게 적응하는 능력</li>
+                    <li>공감능력: 타인의 감정을 이해하고 소통하는 능력</li>
+                    <li>끈기: 어려움에도 불구하고 목표를 향해 계속 나아가는 능력</li>
+                    <li>세심함: 세부사항에 주의를 기울이는 능력</li>
+                  </ul>
+                </div>
               </div>
               <div>
                 <label
                   for="weaknesses"
                   class="block text-sm font-medium text-gray-700 mb-1"
-                  >개선하고 싶은 점 (3가지)</label
                 >
+                  개선하고 싶은 점 (3가지)
+                  <i class="help-icon" data-lucide="help-circle"></i>
+                </label>
                 <input
                   type="text"
                   id="weaknesses"
                   name="weaknesses"
                   class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                   required
+                  placeholder="예: 시간 관리, 발표 능력, 스트레스 관리"
                 />
+                <div class="tooltip">
+                  개선하고 싶은 점 예시:
+                  <ul>
+                    <li>시간 관리: 마감 기한을 지키는 데 어려움을 겪음</li>
+                    <li>의사소통: 생각을 명확하게 표현하는 데 어려움이 있음</li>
+                    <li>자신감: 새로운 도전을 앞두고 불안감을 느낌</li>
+                    <li>인내심: 장기 프로젝트에 집中하기 어려움</li>
+                    <li>융통성: 계획 변경에 대응하는 데 어려움을 겪음</li>
+                    <li>감정 조절: 스트레스 상황에서 감정을 잘 다스리지 못함</li>
+                    <li>체계성: 업무나 학습을 체계적으로 정리하는 데 어려움이 있음</li>
+                  </ul>
+                </div>
               </div>
             </div>
           </div>
@@ -338,8 +507,10 @@
                 <label
                   for="academic_performance"
                   class="block text-sm font-medium text-gray-700 mb-1"
-                  >학업 성취도</label
                 >
+                  학업 성취도
+                  <i class="help-icon" data-lucide="help-circle"></i>
+                </label>
                 <select
                   id="academic_performance"
                   name="academic_performance"
@@ -348,17 +519,24 @@
                   <option value="">선택하세요</option>
                   <option value="top_10">상위 0~10%</option>
                   <option value="top_20">상위 11~20%</option>
-                  <option value="top_30">상위 21~30%</option>
+                  <option<option value="top_30">상위 21~30%</option>
                   <option value="average">평균</option>
                   <option value="below_average">평균 이하</option>
                 </select>
+                <div class="tooltip">
+                  학업 성취도는 전반적인 학업 능력을 나타냅니다. 단, 이는 단순한 지표일 뿐이며, 
+                  개인의 잠재력과 재능은 다양한 방식으로 발현될 수 있습니다. 
+                  현재의 성적에 관계없이 꾸준한 노력과 적절한 학습 방법을 통해 향상될 수 있습니다.
+                </div>
               </div>
               <div>
                 <label
                   for="language_skills"
                   class="block text-sm font-medium text-gray-700 mb-1"
-                  >외국어 능력</label
                 >
+                  외국어 능력
+                  <i class="help-icon" data-lucide="help-circle"></i>
+                </label>
                 <input
                   type="text"
                   id="language_skills"
@@ -366,30 +544,53 @@
                   class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                   placeholder="예: 영어 중급, 일본어 초급"
                 />
+                <div class="tooltip">
+                  외국어 능력 표현 예시:
+                  <ul>
+                    <li>영어: TOEIC 750점, TOEFL iBT 80점</li>
+                    <li>일본어: JLPT N3 취득</li>
+                    <li>중국어: HSK 4급 준비 중</li>
+                    <li>프랑스어: DELF A2 수준</li>
+                    <li>독일어: 기초 회화 가능</li>
+                  </ul>
+                  공인 시험 점수나 등급이 없다면, 본인이 생각하는 수준(초급, 중급, 고급)을 적어주세요.
+                </div>
               </div>
               <div>
                 <label
                   for="computer_skills"
                   class="block text-sm font-medium text-gray-700 mb-1"
-                  >컴퓨터 활용 능력</label
                 >
-                <input type="text" id="computer_skills" name="computer_skills"
-                class="w-full px-3 py-2 border border-gray-300 rounded-md
-                shadow-sm focus:outline-none focus:ring-2
-                focus:ring-indigo-500<input
+                  컴퓨터 활용 능력
+                  <i class="help-icon" data-lucide="help-circle"></i>
+                </label>
+                <input
                   type="text"
                   id="computer_skills"
                   name="computer_skills"
                   class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                   placeholder="예: 워드, 엑셀, 파이썬 기초"
                 />
+                <div class="tooltip">
+                  컴퓨터 활용 능력 예시:
+                  <ul>
+                    <li>오피스 프로그램: MS Word, Excel, PowerPoint 능숙</li>
+                    <li>프로그래밍: Python 기초, Java 중급</li>
+                    <li>그래픽 도구: Photoshop, Illustrator 사용 가능</li>
+                    <li>웹 개발: HTML, CSS 기초</li>
+                    <li>데이터 분석: R 기초, SQL 기초</li>
+                    <li>기타: 3D 모델링(SketchUp), 영상 편집(Premiere Pro) 등</li>
+                  </ul>
+                </div>
               </div>
               <div>
                 <label
                   for="reading_habits"
                   class="block text-sm font-medium text-gray-700 mb-1"
-                  >독서 습관</label
                 >
+                  독서 습관
+                  <i class="help-icon" data-lucide="help-circle"></i>
+                </label>
                 <input
                   type="text"
                   id="reading_habits"
@@ -397,6 +598,17 @@
                   class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                   placeholder="자주 읽는 책의 장르나 주제"
                 />
+                <div class="tooltip">
+                  독서 습관 예시:
+                  <ul>
+                    <li>주로 읽는 장르: 과학 소설, 역사 서적, 자기계발서</li>
+                    <li>독서 빈도: 주 1권, 월 4권 등</li>
+                    <li>선호 주제: 심리학, 경제, 환경 문제 등</li>
+                    <li>독서 방식: 오디오북 청취, E-book 활용</li>
+                    <li>독서 모임 참여: 교내 독서 동아리 활동</li>
+                    <li>최근 감명 깊게 읽은 책: [책 제목] 및 간단한 소감</li>
+                  </ul>
+                </div>
               </div>
             </div>
           </div>
@@ -409,64 +621,128 @@
                 <label
                   for="role_model"
                   class="block text-sm font-medium text-gray-700 mb-1"
-                  >롤모델이나 존경하는 인물</label
                 >
+                  롤모델이나 존경하는 인물
+                  <i class="help-icon" data-lucide="help-circle"></i>
+                </label>
                 <input
                   type="text"
                   id="role_model"
                   name="role_model"
                   class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  placeholder="예: 스티브 잡스, 마리 퀴리, 세종대왕"
                 />
+                <div class="tooltip">
+                  롤모델 예시:
+                  <ul>
+                    <li>과학자: 아인슈타인, 스티븐 호킹, 제인 구달</li>
+                    <li>기업가: 일론 머스크, 빌 게이츠, 마크 저커버그</li>
+                    <li>예술가: 방탄소년단, 피카소, 베토벤</li>
+                    <li>정치인: 넬슨 만델라, 간디, 마틴 루터 킹</li>
+                    <li>운동선수: 김연아, 손흥민, 박지성</li>
+                    <li>작가: 김연수, J.K. 롤링, 무라카미 하루키</li>
+                    <li>사회운동가: 그레타 툰베리, 말랄라 유사프자이</li>
+                  </ul>
+                  특정 인물뿐만 아니라, 주변의 선생님, 가족, 선배도 롤모델이 될 수 있습니다.
+                </div>
               </div>
               <div>
                 <label
                   for="future_job"
                   class="block text-sm font-medium text-gray-700 mb-1"
-                  >장래 희망 (구체적인 직업이나 분야)</label
                 >
+                  장래 희망 (구체적인 직업이나 분야)
+                  <i class="help-icon" data-lucide="help-circle"></i>
+                </label>
                 <input
                   type="text"
                   id="future_job"
                   name="future_job"
                   class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  placeholder="예: 인공지능 연구원, 환경 컨설턴트, 국제 구호 활동가"
                 />
+                <div class="tooltip">
+                  장래 희망 예시:
+                  <ul>
+                    <li>IT: 소프트웨어 개발자, 데이터 과학자, UX 디자이너</li>
+                    <li>의료: 의사, 간호사, 생명공학 연구원, 약사</li>
+                    <li>교육: 교사, 교육 컨텐츠 제작자, 특수교육 전문가</li>
+                    <li>예술: 영화감독, 게임 디자이너, 패션 디자이너</li>
+                    <li>사회: 사회복지사, NGO 활동가, 정책 분석가</li>
+                    <li>과학: 우주 과학자, 로봇 공학자, 기후변화 연구원</li>
+                    <li>경영: 창업가, 마케팅 전문가, 국제 무역 전문가</li>
+                  </ul>
+                  구체적인 직업명이 떠오르지 않는다면, 관심 있는 분야를 적어주세요.
+                </div>
               </div>
               <div>
                 <label
                   for="five_year_goal"
                   class="block text-sm font-medium text-gray-700 mb-1"
-                  >향후 5년간의 목표</label
                 >
+                  향후 5년간의 목표
+                  <i class="help-icon" data-lucide="help-circle"></i>
+                </label>
                 <textarea
                   id="five_year_goal"
                   name="five_year_goal"
                   rows="3"
                   class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  placeholder="예: 대학 진학 후 전공 분야에서 인턴십 경험 쌓기, 외국어 능력 향상, 관심 분야의 자격증 취득"
                 ></textarea>
+                <div class="tooltip">
+                  5년 목표 설정 예시:
+                  <ul>
+                    <li>학업: 원하는 대학에 진학하여 전공 심화 학습</li>
+                    <li>기술: 프로그래밍 언어 3개 이상 습득, 포트폴리오 제작</li>
+                    <li>경험: 관심 분야에서 인턴십 또는 해외 교환학생 경험</li>
+                    <li>자기계발: 외국어 능력 향상 (TOEIC 900점 이상)</li>
+                    <li>자격증: 관심 분야의 전문 자격증 2개 이상 취득</li>
+                    <li>봉사: 지속적인 봉사활동 참여 (연간 100시간 이상)</li>
+                    <li>건강: 규칙적인 운동 습관 형성, 건강한 생활 유지</li>
+                  </ul>
+                </div>
               </div>
               <div>
                 <label
                   for="stress_management"
                   class="block text-sm font-medium text-gray-700 mb-1"
-                  >스트레스 관리 방법</label
                 >
+                  스트레스 관리 방법
+                  <i class="help-icon" data-lucide="help-circle"></i>
+                </label>
                 <input
                   type="text"
                   id="stress_management"
                   name="stress_management"
                   class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  placeholder="예: 운동, 음악 감상, 명상, 친구들과 대화"
                 />
+                <div class="tooltip">
+                  스트레스 관리 방법 예시:
+                  <ul>
+                    <li>신체 활동: 요가, 조깅, 춤, 스포츠</li>
+                    <li>창작 활동: 그림 그리기, 글쓰기, 악기 연주</li>
+                    <li>명상과 이완: 마음 챙김 명상, 심호흡 운동</li>
+                    <li>취미 활동: 독서, 영화 감상, 요리, 원예</li>
+                    <li>사회적 활동: 친구와 대화, 가족과 시간 보내기</li>
+                    <li>자연 접촉: 산책, 등산, 캠핑</li>
+                    <li>시간 관리: 우선순위 설정, 효율적인 일정 관리</li>
+                  </ul>
+                </div>
               </div>
               <div>
                 <label
                   for="learning_style"
                   class="block text-sm font-medium text-gray-700 mb-1"
-                  >선호하는 학습 스타일</label
                 >
+                  선호하는 학습 스타일
+                  <i class="help-icon" data-lucide="help-circle"></i>
+                </label>
                 <select
                   id="learning_style"
                   name="learning_style"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                 >
                   <option value="">선택하세요</option>
                   <option value="visual">시각적</option>
@@ -474,6 +750,16 @@
                   <option value="kinesthetic">실습/체험</option>
                   <option value="reading_writing">읽기/쓰기</option>
                 </select>
+                <div class="tooltip">
+                  학습 스타일 설명:
+                  <ul>
+                    <li>시각적: 그림, 차트, 비디오 등을 통해 정보를 잘 습득</li>
+                    <li>청각적: 강의, 토론, 오디오북 등을 통해 정보를 잘 습득</li>
+                    <li>실습/체험: 직접 해보고 경험하면서 정보를 잘 습득</li>
+                    <li>읽기/쓰기: 텍스트를 읽고 쓰면서 정보를 잘 습득</li>
+                  </ul>
+                  자신에게 가장 효과적인 학습 방식을 선택하세요.
+                </div>
               </div>
             </div>
           </div>
@@ -632,12 +918,12 @@
           const typingIndicator = document.getElementById("typing-indicator");
 
           chatHistory.innerHTML += `
-                  <div class="flex justify-end mb-4">
-                      <div class="chat-bubble bg-indigo-100 text-indigo-800 p-3 rounded-lg">
-                          ${message}
-                      </div>
-                  </div>
-              `;
+            <div class="flex justify-end mb-4">
+              <div class="chat-bubble bg-indigo-100 text-indigo-800 p-3 rounded-lg">
+                ${message}
+              </div>
+            </div>
+          `;
           messageInput.value = "";
           chatHistory.scrollTop = chatHistory.scrollHeight;
 
@@ -656,17 +942,34 @@
           const result = await response.json();
           if (response.ok) {
             chatHistory.innerHTML += `
-                      <div class="flex justify-start mb-4">
-                          <div class="chat-bubble bg-gray-100 text-gray-800 p-3 rounded-lg">
-                              ${result.response}
-                          </div>
-                      </div>
-                  `;
+              <div class="flex justify-start mb-4">
+                <div class="chat-bubble bg-gray-100 text-gray-800 p-3 rounded-lg">
+                  ${result.response}
+                </div>
+              </div>
+            `;
             chatHistory.scrollTop = chatHistory.scrollHeight;
           } else {
             alert("메시지 전송 중 오류가 발생했습니다.");
           }
         });
+
+      // 도움말 아이콘 및 툴팁 기능 추가
+      document.addEventListener('DOMContentLoaded', (event) => {
+        lucide.createIcons();
+        
+        const helpIcons = document.querySelectorAll('.help-icon');
+        helpIcons.forEach(icon => {
+          icon.addEventListener('mouseenter', (e) => {
+            const tooltip = e.target.parentElement.querySelector('.tooltip');
+            tooltip.style.display = 'block';
+          });
+          icon.addEventListener('mouseleave', (e) => {
+            const tooltip = e.target.parentElement.querySelector('.tooltip');
+            tooltip.style.display = 'none';
+          });
+        });
+      });
 
       // 초기 섹션 표시
       showSection(1);
