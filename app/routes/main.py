@@ -56,6 +56,10 @@ def chat():
     data = request.json
     user_id = data['user_id']
     message = data['message']
+    api_key = request.headers.get('X-API-Key')
+    
+    if not api_key:
+        return jsonify({'error': 'API key is required'}), 400
     
     # 사용자 정보 가져오기
     user = User.query.get(user_id)
@@ -90,10 +94,21 @@ def chat():
     }
     
     # Claude API 호출 (프롬프트 엔지니어링 적용)
-    response = get_claude_response(user_info, message)
-    
-    chat_history = ChatHistory(user_id=user_id, message=message, response=response)
-    db.session.add(chat_history)
-    db.session.commit()
-    
-    return jsonify({'response': response}), 200
+    try:
+        response = get_claude_response(user_info, message, api_key)
+        
+        chat_history = ChatHistory(user_id=user_id, message=message, response=response)
+        db.session.add(chat_history)
+        db.session.commit()
+        
+        return jsonify({'response': response}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@main.route('/privacy')
+def privacy():
+    return render_template('privacy.html')
+
+@main.route('/terms')
+def terms():
+    return render_template('terms.html')
