@@ -1,0 +1,1812 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI 진로 탐색 서비스</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+      // lucide 초기화를 DOMContentLoaded 이후에 실행
+      document.addEventListener("DOMContentLoaded", function () {
+        lucide.createIcons();
+      });
+    </script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: "Noto Sans KR", sans-serif;
+      }
+      .chat-bubble {
+        max-width: 80%;
+        word-wrap: break-word;
+      }
+      .typing-indicator {
+        display: inline-block;
+        width: 30px;
+        height: 15px;
+      }
+      .typing-indicator span {
+        display: inline-block;
+        width: 4px;
+        height: 4px;
+        border-radius: 50%;
+        background-color: #3b82f6;
+        animation: typing 1s infinite ease-in-out;
+      }
+      .typing-indicator span:nth-child(2) {
+        animation-delay: 0.2s;
+      }
+      .typing-indicator span:nth-child(3) {
+        animation-delay: 0.4s;
+      }
+      @keyframes typing {
+        0% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-5px);
+        }
+        100% {
+          transform: translateY(0);
+        }
+      }
+      .form-section {
+        display: none;
+      }
+      .form-section.active {
+        display: block;
+      }
+      .help-icon {
+        cursor: pointer;
+        vertical-align: middle;
+        margin-left: 5px;
+      }
+      .tooltip {
+        display: none;
+        position: absolute;
+        background-color: #f9f9f9;
+        border: 1px solid #ddd;
+        padding: 10px;
+        border-radius: 4px;
+        z-index: 1;
+        max-width: 300px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      }
+      .tooltip ul {
+        margin-top: 5px;
+        padding-left: 20px;
+      }
+      .tooltip li {
+        margin-bottom: 3px;
+      }
+      .examples {
+        background-color: #f0f4f8;
+        border-left: 4px solid #3b82f6;
+        padding: 1rem;
+        margin-top: 1rem;
+        max-height: calc(100vh - 16rem);
+        overflow-y: auto;
+      }
+      .examples h4 {
+        color: #2d3748;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        cursor: pointer;
+      }
+      .examples ul {
+        list-style-type: disc;
+        padding-left: 1.5rem;
+      }
+      .example-content {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease-out;
+      }
+      .example-content.active {
+        max-height: 1000px;
+        transition: max-height 0.5s ease-in;
+      }
+      /* 기존 스타일에 추가 */
+      .modal-open {
+        overflow: hidden;
+      }
+
+      #api-key-modal {
+        backdrop-filter: blur(4px);
+      }
+
+      .example-content {
+        max-height: none;
+        overflow: visible;
+      }
+
+      .example-content.active {
+        max-height: none;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-100">
+    <div class="container mx-auto px-4 py-8 max-w-8xl">
+      <header class="text-center mb-12">
+        <div class="flex justify-end mb-4">
+          <button
+            id="show-api-key-modal"
+            class="flex items-center justify-center space-x-2 bg-indigo-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all duration-200 shadow-sm"
+          >
+            <i data-lucide="key"></i>
+            <span>API 키 설정</span>
+          </button>
+        </div>
+        <h1 class="text-4xl font-bold text-indigo-700 mb-2">
+          AI 기반 고등학생 진로 탐색 서비스
+        </h1>
+        <p class="text-gray-600">당신의 꿈과 재능을 AI와 함께 발견하세요</p>
+      </header>
+
+      <!-- API 키 설정 섹션 추가 -->
+      <div
+        id="api-key-modal"
+        class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden flex items-center justify-center z-50"
+      >
+        <div
+          class="bg-white p-8 rounded-lg shadow-lg max-w-md w-full mx-4 relative"
+        >
+          <!-- 닫기 버튼 위치 수정 -->
+          <button
+            id="close-modal"
+            class="absolute top-4 right-4 text-gray-500 hover:text-gray-700 focus:outline-none"
+            aria-label="모달 닫기"
+          >
+            <i data-lucide="x"></i>
+          </button>
+
+          <div class="mb-6">
+            <h2 class="text-2xl font-semibold text-indigo-600">API 키 설정</h2>
+            <p class="text-sm text-gray-600 mt-2">
+              Anthropic API 키를 입력하여 AI 상담 서비스를 이용하실 수 있습니다.
+            </p>
+          </div>
+
+          <div class="space-y-4">
+            <div>
+              <label
+                for="api-key"
+                class="block text-sm font-medium text-gray-700 mb-1"
+              >
+                Anthropic API 키
+              </label>
+              <div class="relative">
+                <input
+                  type="password"
+                  id="api-key"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  placeholder="sk-ant-api03-..."
+                />
+                <button
+                  id="toggle-api-key"
+                  class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                  type="button"
+                ></button>
+              </div>
+              <div class="tooltip">
+                Anthropic API 키는 Claude AI를 사용하기 위해 필요합니다.
+                <a
+                  href="https://console.anthropic.com/"
+                  target="_blank"
+                  class="text-indigo-600 hover:text-indigo-800"
+                >
+                  여기서 발급받을 수 있습니다.
+                </a>
+              </div>
+            </div>
+            <div class="flex justify-end space-x-3">
+              <button
+                id="cancel-api-key"
+                class="px-4 py-2 text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors duration-300"
+              >
+                취소
+              </button>
+              <button
+                id="save-api-key"
+                class="bg-indigo-600 text-white font-bold py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors duration-300"
+              >
+                저장
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="progress-bar" class="w-full bg-gray-200 rounded-full h-2.5 mb-6">
+        <div
+          id="progress"
+          class="bg-indigo-600 h-2.5 rounded-full"
+          style="width: 0%"
+        ></div>
+      </div>
+
+      <div class="flex space-x-8">
+        <div id="user-info-form" class="w-2/3">
+          <div class="bg-white p-8 rounded-lg shadow-lg mb-8">
+            <h2 class="text-2xl font-semibold mb-6 text-indigo-600">
+              사용자 정보 입력
+            </h2>
+            <form id="info-form" class="space-y-6">
+              <!-- 1. 기본 정보 섹션 -->
+              <div class="form-section active" data-section="1">
+                <h3 class="text-xl font-semibold mb-4">기본 정보</h3>
+                <div class="space-y-4">
+                  <div>
+                    <label
+                      for="name"
+                      class="block text-sm font-medium text-gray-700 mb-1"
+                      >이름</label
+                    >
+                    <input
+                      type="text"
+                      id="name"
+                      name="name"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                      required
+                      placeholder="예: 홍길동"
+                    />
+                  </div>
+                  <div>
+                    <label
+                      for="age"
+                      class="block text-sm font-medium text-gray-700 mb-1"
+                      >나이</label
+                    >
+                    <input
+                      type="number"
+                      id="age"
+                      name="age"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                      required
+                      placeholder="예: 17"
+                    />
+                  </div>
+                  <div>
+                    <label
+                      for="grade"
+                      class="block text-sm font-medium text-gray-700 mb-1"
+                      >학년</label
+                    >
+                    <select
+                      id="grade"
+                      name="grade"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                      required
+                    >
+                      <option value="">선택하세요</option>
+                      <option value="1">1학년</option>
+                      <option value="2">2학년</option>
+                      <option value="3">3학년</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 2. 학업 정보 섹션 -->
+              <div class="form-section" data-section="2">
+                <h3 class="text-xl font-semibold mb-4">학업 정보</h3>
+                <div class="space-y-4">
+                  <div>
+                    <label
+                      for="academic_track"
+                      class="block text-sm font-medium text-gray-700 mb-1"
+                      >계열</label
+                    >
+                    <select
+                      id="academic_track"
+                      name="academic_track"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                      required
+                    >
+                      <option value="">선택하세요</option>
+                      <option value="문과">문과</option>
+                      <option value="이과">이과</option>
+                      <option value="예체능">예체능</option>
+                      <option value="기타">기타</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label
+                      for="favorite_subject"
+                      class="block text-sm font-medium text-gray-700 mb-1"
+                      >좋아하는 과목
+                    </label>
+                    <input
+                      type="text"
+                      id="favorite_subject"
+                      name="favorite_subject"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                      required
+                      placeholder="예: 수학, 과학, 영어"
+                    />
+                    <div class="tooltip">
+                      좋아하는 과목 예시:
+                      <ul>
+                        <li>국어: 문학, 독서, 화법과 작문</li>
+                        <li>수학: 수학, 수학I, 수학II, 미적분, 확률과 통계</li>
+                        <li>영어: 영어, 영어회화, 영어독해와 작문</li>
+                        <li>과학: 물리학, 화학, 생명과학, 지구과학</li>
+                        <li>사회: 역사, 지리, 경제, 정치와 법</li>
+                        <li>예체능: 음악, 미술, 체육</li>
+                      </ul>
+                    </div>
+                  </div>
+                  <div>
+                    <label
+                      for="disliked_subject"
+                      class="block text-sm font-medium text-gray-700 mb-1"
+                      >싫어하는 과목
+                    </label>
+                    <input
+                      type="text"
+                      id="disliked_subject"
+                      name="disliked_subject"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                      required
+                      placeholder="예: 국어, 역사, 체육"
+                    />
+                    <div class="tooltip">
+                      싫어하는 과목을 파악하는 것은 진로 선택에 도움이 될 수
+                      있습니다. 예를 들어, 수학을 싫어한다면 수학 중심의 전공은
+                      피하는 것이 좋을 수 있습니다. 하지만 싫어하는 과목이라도
+                      중요하게 생각할 수 있으니, 왜 싫어하는지 생각해보고 극복
+                      방법을 찾아보는 것도 좋습니다.
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 3. 진로 및 관심사 섹션 -->
+              <div class="form-section" data-section="3">
+                <h3 class="text-xl font-semibold mb-4">진로 및 관심사</h3>
+                <div class="space-y-4">
+                  <div>
+                    <label
+                      for="interests"
+                      class="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      관심사 (쉼표로 구분)
+                    </label>
+                    <input
+                      type="text"
+                      id="interests"
+                      name="interests"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                      placeholder="예: 음악, 과학, 요리, 여행, 환경 보호"
+                      required
+                    />
+                    <div class="tooltip">
+                      다양한 관심사 예시:
+                      <ul>
+                        <li>예술: 그림 그리기, 사진 촬영, 악기 연주, 춤</li>
+                        <li>과학: 우주, 생물학, 화학 실험, 로봇공학</li>
+                        <li>기술: 프로그래밍, 3D 프린팅, 가상현실(VR)</li>
+                        <li>스포츠: 축구, 수영, 요가, e스포츠</li>
+                        <li>사회: 봉사활동, 환경 보호, 인권 문제</li>
+                        <li>문화: 영화, 독서, 패션, 요리</li>
+                        <li>기타: 여행, 애완물 돌보기, 정원 가꾸기</li>
+                      </ul>
+                    </div>
+                  </div>
+                  <div>
+                    <label
+                      for="hobbies"
+                      class="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      취미 (쉼표로 구분)
+                    </label>
+                    <input
+                      type="text"
+                      id="hobbies"
+                      name="hobbies"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                      placeholder="예: 독서, 게임, 등산, 요리, 영화 감상"
+                      required
+                    />
+                    <div class="tooltip">
+                      취미 활동 예시:
+                      <ul>
+                        <li>창작 활동: 글쓰기, 그림 그리기, 음악 작곡</li>
+                        <li>운동: 조깅, 자전거 타기, 댄스, 요가</li>
+                        <li>게임: 보드게임, 비디오 게임, 퍼즐</li>
+                        <li>수집: 우표, 동전, 피규어</li>
+                        <li>학습: 새로운 언어 배우기, 악기 연주, 요리</li>
+                        <li>야외 활동: 캠핑, 낚시, 사진 촬영</li>
+                        <li>DIY: 가구 만들기, 뜨개질, 원예</li>
+                      </ul>
+                    </div>
+                  </div>
+                  <div>
+                    <label
+                      for="career_interests"
+                      class="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      관심 있는 직업군
+                    </label>
+                    <input
+                      type="text"
+                      id="career_interests"
+                      name="career_interests"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                      placeholder="예: IT 개발자, 의사, 교사, 디자이너, 연구원"
+                      required
+                    />
+                    <div class="tooltip">
+                      다양한 직업군 예시:
+                      <ul>
+                        <li>
+                          과학기술: 소프트웨어 엔지니어, 데이터 과학자, 인공지능
+                          전문가
+                        </li>
+                        <li>
+                          의료: 의사, 간호사, 물리치료사, 약사, 의료기기 개발자
+                        </li>
+                        <li>
+                          교육: 교사, 교수, 특수교육 전문가, 교육 콘텐츠 제작자
+                        </li>
+                        <li>
+                          예술: 그래픽 디자이너, 영화감독, 음악 프로듀서, 게임
+                          디자이너
+                        </li>
+                        <li>
+                          경영/금융: 기업가, 재무 분석가, 마케팅 전문가, 투자
+                          상담사
+                        </li>
+                        <li>법률/공공: 변호사, 판사, 정책 분석가, 외교관</li>
+                        <li>
+                          환경/에너지: 환경 공학자, 재생에너지 전문가, 기후변화
+                          연구원
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 4. 활동 및 경험 섹션 -->
+              <div class="form-section" data-section="4">
+                <h3 class="text-xl font-semibold mb-4">활동 및 경험</h3>
+                <div class="space-y-4">
+                  <div>
+                    <label
+                      for="extracurricular"
+                      class="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      참여 중인 동아리 활동
+                    </label>
+                    <input
+                      type="text"
+                      id="extracurricular"
+                      name="extracurricular"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                      placeholder="예: 과학 동아리, 봉사 동아리, 독서 토론 동아리"
+                    />
+                    <div class="tooltip">
+                      동아리 활동 예시:
+                      <ul>
+                        <li>
+                          학술: 과학 실험 동아리, 수학 올림피아드 동아리, 영어
+                          토론 동아리
+                        </li>
+                        <li>
+                          예술: 미술 동아리, 밴드 동아리, 연극 동아리, 사진
+                          동아리
+                        </li>
+                        <li>체육: 축구부, 농구부, 요가 동아리, 등산 동아리</li>
+                        <li>
+                          봉사: 환경 보호 동아리, 지역사회 봉사 동아리, 멘토링
+                          동아리
+                        </li>
+                        <li>
+                          기술: 로봇공학 동아리, 코딩 동아리, 3D 프린팅 동아리
+                        </li>
+                        <li>
+                          문화: 영화 감상 동아리, 요리 동아리, 문예창작 동아
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                  <div>
+                    <label
+                      for="volunteer"
+                      class="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      봉사활동 경험
+                    </label>
+                    <textarea
+                      id="volunteer"
+                      name="volunteer"
+                      rows="3"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                      placeholder="예: 지역 도서관에서 책 정리 봉사, 노인복지관에서 말벗 봉사"
+                    ></textarea>
+                    <div class="tooltip">
+                      봉사활동 경험 예시:
+                      <ul>
+                        <li>
+                          교육: 저소득층 학생 학습 멘토링, 다문화 가정 한국어
+                          교육
+                        </li>
+                        <li>환경: 지역 공원 청소, 재활용 캠페인 참여</li>
+                        <li>
+                          사회복지: 노인복지관 급식 봉사, 장애인 시설 보조
+                        </li>
+                        <li>의료: 헌혈 캠페인 참여, 보건소 업무 보조</li>
+                        <li>문화: 지역 축제 운영 보조, 박물관 도슨트</li>
+                        <li>
+                          동물보호: 유기동물 보호소 활동, 야생동물 구조 센터
+                          봉사
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                  <div>
+                    <label
+                      for="achievements"
+                      class="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      주요 성과 또는 수상 경력
+                    </label>
+                    <textarea
+                      id="achievements"
+                      name="achievements"
+                      rows="3"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                      placeholder="예: 전국 과학 경진대회 은상, 교내 영어 말하기 대회 1등"
+                    ></textarea>
+                    <div class="tooltip">
+                      성과 및 수상 경력 예시:
+                      <ul>
+                        <li>
+                          학업: 전국 수학 올림피아드 입상, 과학 발명품 경진대회
+                          수상
+                        </li>
+                        <li>
+                          예술: 청소년 미술 대전 특선, 전국 학생 음악 콩쿠르
+                          입상
+                        </li>
+                        <li>
+                          체육: 전국 체육대회 메달 획득, 교내 스포츠 리그 우승
+                        </li>
+                        <li>
+                          외국어: TOEFL/TOEIC 고득점, 일본어/중국어 능력시험
+                          고급 취득
+                        </li>
+                        <li>
+                          리더십: 학생회장 역임, 모의유엔 대회 의장상 수상
+                        </li>
+                        <li>
+                          봉사: 연간 봉사활동 100시간 이상 인증, 지역사회 공헌
+                          표창
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 5. 성격 및 특성 섹션 -->
+              <div class="form-section" data-section="5">
+                <h3 class="text-xl font-semibold mb-4">성격 및 특성</h3>
+                <div class="space-y-4">
+                  <div>
+                    <label
+                      for="mbti"
+                      class="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      MBTI (알고 있다면)
+                    </label>
+                    <input
+                      type="text"
+                      id="mbti"
+                      name="mbti"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                      placeholder="예: INTJ, ESFP"
+                    />
+                    <div class="tooltip">
+                      MBTI는 성격 유형을 나타내는 지표입니다. 16가지 유형이
+                      있으며, 각각 4개의 지표로 구성됩니다:
+                      <ul>
+                        <li>E(외향) / I(내향)</li>
+                        <li>S(감각) / N(직관)</li>
+                        <li>T(사고) / F(감정)</li>
+                        <li>J(판단) / P(인식)</li>
+                      </ul>
+                      예: INFP, ESTJ, ENFJ 등
+                    </div>
+                  </div>
+                  <div>
+                    <label
+                      for="strengths"
+                      class="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      자신의 강점 (3가지)
+                    </label>
+                    <input
+                      type="text"
+                      id="strengths"
+                      name="strengths"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                      required
+                      placeholder="예: 책임감, 창의력, 의사소통 능력"
+                    />
+                    <div class="tooltip">
+                      강점 예시:
+                      <ul>
+                        <li>리더십: 팀을 이끌고 동기부여하는 능력</li>
+                        <li>분석력: 복잡한 문제를 체계적으로 해결하는 능력</li>
+                        <li>
+                          창의력: 새로운 아이디어를 제시하고 혁신적인 솔루션을
+                          찾는 능력
+                        </li>
+                        <li>적응력: 변화하는 환경에 빠르게 적응하는 능력</li>
+                        <li>공감능력: 타인의 감정을 이해하고 소통하는 능력</li>
+                        <li>
+                          끈기: 어려움에도 불구하고 목표를 향해 계속 나아가는
+                          능력
+                        </li>
+                        <li>세심함: 세부사항에 주의를 기울이는 능력</li>
+                      </ul>
+                    </div>
+                  </div>
+                  <div>
+                    <label
+                      for="weaknesses"
+                      class="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      개선하고 싶은 점 (3가지)
+                    </label>
+                    <input
+                      type="text"
+                      id="weaknesses"
+                      name="weaknesses"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                      required
+                      placeholder="예: 시간 관리, 발표 능력, 스트레스 관리"
+                    />
+                    <div class="tooltip">
+                      개선하고 싶은 점 예시:
+                      <ul>
+                        <li>시간 관리: 마감 기한을 지키는 데 어려움을 겪음</li>
+                        <li>
+                          의사소통: 생각을 명확하게 표현하는 데 어려움이 있음
+                        </li>
+                        <li>자신감: 새로운 도전을 앞두고 불안감을 느낌</li>
+                        <li>인내심: 장기 프로젝트에 집중하기 어려움</li>
+                        <li>융통성: 계획 변경에 대응하는 데 어려움을 겪음</li>
+                        <li>
+                          감정 조절: 스트레스 상황에서 감정을 잘 다스리지 못함
+                        </li>
+                        <li>
+                          체계성: 업무나 학습을 체계적으로 정리하는 데 어려움이
+                          있음
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 6. 학업 및 기술 섹션 -->
+              <div class="form-section" data-section="6">
+                <h3 class="text-xl font-semibold mb-4">학업 및 기술</h3>
+                <div class="space-y-4">
+                  <div>
+                    <label
+                      for="academic_performance"
+                      class="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      학업 성취도 </label
+                    ><select
+                      id="academic_performance"
+                      name="academic_performance"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    >
+                      <option value="">선택하세요</option>
+                      <option value="top_10">상위 0~10%</option>
+                      <option value="top_20">상위 11~20%</option>
+                      <option value="top_30">상위 21~30%</option>
+                      <option value="average">평균</option>
+                      <option value="below_average">평균 이하</option>
+                    </select>
+                    <div class="tooltip">
+                      학업 성취도는 전반적인 학업 능력을 나타냅니다. 단, 이는
+                      단순한 지표일 뿐이며, 개인의 잠재력과 재능은 다양한
+                      방식으로 발현될 수 있습니다. 현재의 성적에 관계없이 꾸준한
+                      노력과 적절한 학습 방법을 통해 향상될 수 있습니다.
+                    </div>
+                  </div>
+                  <div>
+                    <label
+                      for="language_skills"
+                      class="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      외국어 능력
+                    </label>
+                    <input
+                      type="text"
+                      id="language_skills"
+                      name="language_skills"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                      placeholder="예: 영어 중급, 일본어 초급"
+                    />
+                    <div class="tooltip">
+                      외국어 능력 표현 예시:
+                      <ul>
+                        <li>영어: TOEIC 750점, TOEFL iBT 80점</li>
+                        <li>일본어: JLPT N3 취득</li>
+                        <li>중국어: HSK 4급 준비 중</li>
+                        <li>프랑스어: DELF A2 수준</li>
+                        <li>독일어: 기초 회화 가능</li>
+                      </ul>
+                      공인 시험 점수나 등급이 없다면, 본인이 생각하는 수준(초급,
+                      중급, 고급)을 적어주세요.
+                    </div>
+                  </div>
+                  <div>
+                    <label
+                      for="computer_skills"
+                      class="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      컴퓨터 활용 능력
+                    </label>
+                    <input
+                      type="text"
+                      id="computer_skills"
+                      name="computer_skills"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                      placeholder="예: 워드, 엑셀, 파이썬 기초"
+                    />
+                    <div class="tooltip">
+                      컴퓨터 활용 능력 예시:
+                      <ul>
+                        <li>
+                          오피스 프로그램: MS Word, Excel, PowerPoint 능숙
+                        </li>
+                        <li>프로그래밍: Python 기초, Java 중급</li>
+                        <li>그래픽 도구: Photoshop, Illustrator 사용 가능</li>
+                        <li>웹 개발: HTML, CSS 기초</li>
+                        <li>데이터 분석: R 기초, SQL 기초</li>
+                        <li>
+                          기타: 3D 모델링(SketchUp), 영상 편집(Premiere Pro) 등
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                  <div>
+                    <label
+                      for="reading_habits"
+                      class="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      독서 습관
+                    </label>
+                    <input
+                      type="text"
+                      id="reading_habits"
+                      name="reading_habits"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                      placeholder="자주 읽는 책의 장르나 주제"
+                    />
+                    <div class="tooltip">
+                      독서 습관 예시:
+                      <ul>
+                        <li>
+                          주로 읽는 장르: 과학 소설, 역사 서적, 자기계발서
+                        </li>
+                        <li>독서 빈도: 주 1권, 월 4권 등</li>
+                        <li>선호 주제: 심리학, 경제, 환경 문제 등</li>
+                        <li>독서 방식: 오디오북 청취, E-book 활용</li>
+                        <li>독서 모임 참여: 교내 독서 동아리 활동</li>
+                        <li>
+                          최근 감명 깊게 읽은 책: [책 제목] 및 간단한 소감
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 7. 미래 계획 및 목표 섹션 -->
+              <div class="form-section" data-section="7">
+                <h3 class="text-xl font-semibold mb-4">미래 계획 및 목표</h3>
+                <div class="space-y-4">
+                  <div>
+                    <label
+                      for="role_model"
+                      class="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      롤모델이나 존경하는 인물
+                    </label>
+                    <input
+                      type="text"
+                      id="role_model"
+                      name="role_model"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                      placeholder="예: 스티브 잡스, 마리 퀴리, 세종대왕"
+                    />
+                    <div class="tooltip">
+                      롤모델 예시:
+                      <ul>
+                        <li>과학자: 아인슈타인, 스티븐 호킹, 제인 구달</li>
+                        <li>기업가: 일론 머스크, 빌 게이츠, 크 저커버그</li>
+                        <li>예술가: 방탄소년단, 피카소, 베토벤</li>
+                        <li>정치인: 넬슨 만델라, 간디, 마틴 루터 킹</li>
+                        <li>운동선수: 김연아, 손흥민, 박지성</li>
+                        <li>작가: 김연수, J.K. 롤링, 무라카미 하루키</li>
+                        <li>사회운동가: 그레타 툰베리, 말랄라 유사프자이</li>
+                      </ul>
+                      특정 인물뿐만 아니라, 주변의 선생님, 가족, 선배도 롤모델이
+                      될 수 있습니다.
+                    </div>
+                  </div>
+                  <div>
+                    <label
+                      for="future_job"
+                      class="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      장래 희망 (구체적인 직업이나 분야)
+                    </label>
+                    <input
+                      type="text"
+                      id="future_job"
+                      name="future_job"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                      placeholder="예: 인공지능 연구원, 환경 컨설턴트, 국제 구호 활동가"
+                    />
+                    <div class="tooltip">
+                      장래 희망 예시:
+                      <ul>
+                        <li>
+                          IT: 소프트웨어 개발자, 데이터 과학자, UX 디자이너
+                        </li>
+                        <li>의료: 의사, 간호사, 생명공학 연구원, 약사</li>
+                        <li>교육: 교사, 교육 컨텐츠 제작자, 특수교육 전문가</li>
+                        <li>예술: 영화감독, 게임 디자이너, 패션 디자이너</li>
+                        <li>사회: 사회복지사, NGO 활동가, 정책 분석가</li>
+                        <li>과학: 우주 과학자, 로봇 공학자, 기후변화 연구원</li>
+                        <li>경영: 창업가, 마케팅 전문가, 국제 무역 전문가</li>
+                      </ul>
+                      구체적인 직업명이 떠오르지 않는다면, 관심 있는 분야를
+                      적어주세요.
+                    </div>
+                  </div>
+                  <div>
+                    <label
+                      for="five_year_goal"
+                      class="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      향후 5년간의 목표
+                    </label>
+                    <textarea
+                      id="five_year_goal"
+                      name="five_year_goal"
+                      rows="3"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                      placeholder="예: 대학 진학 후 전공 분야에서 인턴십 경험 쌓기, 외국어 능력 향상, 관심 분야의 자격증 취득"
+                    ></textarea>
+                    <div class="tooltip">
+                      5년 목표 설정 예시:
+                      <ul>
+                        <li>학업: 원하는 대학에 진학하여 전공 심화 학습</li>
+                        <li>
+                          기술: 프로그래밍 언어 3개 이상 습득, 포트폴리오 제작
+                        </li>
+                        <li>
+                          경험: 관심 분야에서 인턴십 또는 해외 교환학생 경험
+                        </li>
+                        <li>자기계발: 외국어 능력 향상 (TOEIC 900점 이상)</li>
+                        <li>자격증: 관심 분야의 전문 자격증 2개 이상 취득</li>
+                        <li>
+                          봉사: 지속적인 봉사활동 참여 (연간 100시간 이상)
+                        </li>
+                        <li>건강: 규칙적인 운동 습관 형성, 건강한 생활 유지</li>
+                      </ul>
+                    </div>
+                  </div>
+                  <div>
+                    <label
+                      for="stress_management"
+                      class="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      스트레스 관리 방법
+                    </label>
+                    <input
+                      type="text"
+                      id="stress_management"
+                      name="stress_management"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                      placeholder="예: 운동, 음악 감상, 명상, 친구들과 대화"
+                    />
+                    <div class="tooltip">
+                      스트레스 관리 방법 예시:
+                      <ul>
+                        <li>신체 활동: 요가, 조깅, 춤, 스포츠</li>
+                        <li>창작 활동: 그림 그리기, 글쓰기, 악기 연주</li>
+                        <li>명상과 이완: 마음 챙김 명상, 심호흡 운동</li>
+                        <li>취미 활동: 독서, 영화 감상, 요리, 원예</li>
+                        <li>사회적 활동: 친구와 대화, 가족과 시간 보내기</li>
+                        <li>자연 접촉: 산책, 등산, 캠핑</li>
+                        <li>시간 관리: 우선순위 설정, 효율적인 일정 관리</li>
+                      </ul>
+                    </div>
+                  </div>
+                  <div>
+                    <label
+                      for="learning_style"
+                      class="block text-sm font-medium text-gray-700 mb-1"
+                      >선호하는 학습 스타일
+                    </label>
+                    <select
+                      id="learning_style"
+                      name="learning_style"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    >
+                      <option value="">선택하세요</option>
+                      <option value="visual">시각적</option>
+                      <option value="auditory">청각적</option>
+                      <option value="kinesthetic">실습/체험</option>
+                      <option value="reading_writing">읽기/쓰기</option>
+                    </select>
+                    <div class="tooltip">
+                      학습 스타일 설명:
+                      <ul>
+                        <li>
+                          시각적: 그림, 차트, 비디오 등을 통해 정보를 잘 습득
+                        </li>
+                        <li>
+                          청각적: 강의, 토론, 오디오북 등을 통해 정보를 잘 습득
+                        </li>
+                        <li>
+                          실습/체험: 직접 해보고 경험하면서 정보를 잘 습득
+                        </li>
+                        <li>읽기/쓰기: 텍스트를 읽고 쓰면서 정보를 잘 습득</li>
+                      </ul>
+                      자신에게 가장 효과적인 학습 방식을 선택하세요.
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="flex justify-between">
+                <button
+                  type="button"
+                  id="prev-btn"
+                  class="bg-gray-300 text-gray-700 font-bold py-2 px-4 rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors duration-300"
+                  style="display: none"
+                >
+                  이전
+                </button>
+                <button
+                  type="button"
+                  id="next-btn"
+                  class="bg-indigo-600 text-white font-bold py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors duration-300"
+                >
+                  다음
+                </button>
+                <button
+                  type="submit"
+                  id="submit-btn"
+                  class="bg-green-600 text-white font-bold py-2 px-4 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors duration-300"
+                  style="display: none"
+                >
+                  제출
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <div id="examples-section" class="w-1/3">
+          <div
+            class="bg-white p-8 rounded-lg shadow-lg mb-8 sticky top-4"
+            style="height: fit-content; max-height: calc(100vh - 2rem)"
+          >
+            <h2 class="text-2xl font-semibold mb-6 text-indigo-600">
+              입력 예시
+            </h2>
+            <div
+              id="section-example"
+              class="examples overflow-y-auto"
+              style="max-height: calc(100% - 4rem)"
+            >
+              <!-- 각 섹션별 예시는 JavaScript로 동적으로 변경됩니다 -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div
+        id="chat-interface"
+        class="bg-white p-8 rounded-lg shadow-lg"
+        style="display: none"
+      >
+        <h2 class="text-2xl font-semibold mb-6 text-indigo-600">
+          AI와 대화하기
+        </h2>
+        <div
+          id="chat-history"
+          class="mb-6 h-[600px] overflow-y-auto border rounded-md p-4 space-y-4 font-medium leading-relaxed whitespace-pre-wrap"
+        >
+          <!-- 초기 메시지 추가 -->
+          <div class="flex justify-start mb-4">
+            <div class="chat-bubble bg-gray-100 text-gray-800 p-3 rounded-lg">
+              안녕하세요! 입력하신 정보를 바탕으로 진로 상담을 도와드리겠습니다.
+              원하시는 내용을 자유롭게 물어보세요. 예시 질문: - 이를 바탕으로 내
+              진로를 추천해줘 - 내 성향에 맞는 직업을 알려줘 - 내가 보완해야 할
+              점은 뭐가 있을까? - 대학 진학시 추천하는 학과는?
+            </div>
+          </div>
+        </div>
+        <div
+          id="typing-indicator"
+          class="text-gray-500 mb-2"
+          style="display: none"
+        >
+          AI가 답변을 작성 중입니다
+          <div class="typing-indicator ml-2">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+        </div>
+        <form
+          id="chat-form"
+          class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4"
+        >
+          <input
+            type="text"
+            id="user-message"
+            class="flex-grow px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            placeholder="예) 이를 바탕으로 내 진로를 추천해줘"
+            required
+          />
+          <button
+            type="submit"
+            class="bg-indigo-600 text-white font-bold py-2 px-6 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors duration-300"
+          >
+            전송
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <footer class="bg-gray-900 text-gray-300">
+      <div class="container mx-auto px-4 max-w-8xl">
+        <!-- 메인 푸터 콘텐츠 -->
+        <div
+          class="flex flex-col md:flex-row justify-between items-start gap-12 px-6 py-8"
+        >
+          <!-- 서비스 소개 섹션 -->
+          <div class="space-y-4">
+            <h3 class="text-lg font-bold text-white">AI 진로 탐색</h3>
+            <p class="text-gray-400 leading-relaxed">
+              AI 기술을 활용하여 고등학생들의 적성과 흥미를 분석하고,<br />
+              맞춤형 진로 방향을 제시하는 혁신적인 서비스입니다.
+            </p>
+          </div>
+
+          <!-- 고객지원 섹션 -->
+          <div class="space-y-4">
+            <h3 class="text-lg font-semibold text-white">문의</h3>
+            <ul class="space-y-3">
+              <li>
+                <a
+                  href="mailto:sungblab@gmail.com"
+                  class="flex items-center text-gray-400 hover:text-white transition-colors"
+                >
+                  <span>sungblab@gmail.com</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://sungblab.vercel.app"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="개발자 블로그 가기"
+                  class="flex items-center text-gray-400 hover:text-white transition-colors"
+                >
+                  <span>개발자 블로그 가기</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- 구분선 -->
+        <div class="border-t border-gray-800">
+          <div class="px-6 py-4">
+            <div
+              class="flex flex-col md:flex-row justify-between items-center space-y-2 md:space-y-0"
+            >
+              <!-- 저작권 정보 -->
+              <div class="text-gray-400 text-sm">
+                © 2024 AI 진로 탐색 서비스. All rights reserved.
+              </div>
+              <!-- 기타 링크 -->
+              <div class="flex space-x-6">
+                <a
+                  href="/privacy"
+                  class="text-gray-400 hover:text-white text-sm transition-colors"
+                >
+                  개인정보처리방침
+                </a>
+                <a
+                  href="/terms"
+                  class="text-gray-400 hover:text-white text-sm transition-colors"
+                >
+                  이용약관
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      let userId = null;
+      let currentSection = 1;
+      const totalSections = 7;
+
+      function updateProgressBar() {
+        const progress = (currentSection / totalSections) * 100;
+        document.getElementById("progress").style.width = `${progress}%`;
+      }
+
+      function showSection(sectionNumber) {
+        document.querySelectorAll(".form-section").forEach((section) => {
+          section.classList.remove("active");
+        });
+        document
+          .querySelector(`.form-section[data-section="${sectionNumber}"]`)
+          .classList.add("active");
+
+        const prevBtn = document.getElementById("prev-btn");
+        const nextBtn = document.getElementById("next-btn");
+        const submitBtn = document.getElementById("submit-btn");
+
+        prevBtn.style.display = sectionNumber > 1 ? "block" : "none";
+        nextBtn.style.display =
+          sectionNumber < totalSections ? "block" : "none";
+        submitBtn.style.display =
+          sectionNumber === totalSections ? "block" : "none";
+
+        currentSection = sectionNumber;
+        updateProgressBar();
+        updateExamples(sectionNumber);
+      }
+
+      document.getElementById("prev-btn").addEventListener("click", () => {
+        if (currentSection > 1) {
+          showSection(currentSection - 1);
+        }
+      });
+
+      document.getElementById("next-btn").addEventListener("click", () => {
+        if (currentSection < totalSections) {
+          showSection(currentSection + 1);
+        }
+      });
+
+      document
+        .getElementById("info-form")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const formData = new FormData(e.target);
+          const userData = Object.fromEntries(formData.entries());
+
+          const response = await fetch("/submit_info", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(userData),
+          });
+
+          const result = await response.json();
+          if (response.ok) {
+            userId = result.user_id;
+            document.getElementById("user-info-form").style.display = "none";
+            document.getElementById("examples-section").style.display = "none";
+            document.getElementById("chat-interface").style.display = "block";
+          } else {
+            alert("사용자 정보 제출 중 오류가 발생했습니다.");
+          }
+        });
+
+      document
+        .getElementById("chat-form")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const apiKey = localStorage.getItem("anthropic_api_key");
+          if (!apiKey) {
+            alert("API 키를 먼저 설정해주세요.");
+            return;
+          }
+
+          const messageInput = document.getElementById("user-message");
+          const message = messageInput.value.trim();
+          if (!message) return;
+
+          const chatHistory = document.getElementById("chat-history");
+          const typingIndicator = document.getElementById("typing-indicator");
+
+          chatHistory.innerHTML += `
+            <div class="flex justify-end mb-4">
+              <div class="chat-bubble bg-indigo-100 text-indigo-800 p-3 rounded-lg">
+                ${message}
+              </div>
+            </div>
+          `;
+          messageInput.value = "";
+          chatHistory.scrollTop = chatHistory.scrollHeight;
+
+          typingIndicator.style.display = "block";
+
+          try {
+            const response = await fetch("/chat", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "X-API-Key": apiKey,
+              },
+              body: JSON.stringify({ user_id: userId, message }),
+            });
+
+            typingIndicator.style.display = "none";
+
+            if (!response.ok) {
+              throw new Error("API 요청에 실패했습니다.");
+            }
+
+            const result = await response.json();
+            chatHistory.innerHTML += `
+              <div class="flex justify-start mb-4">
+                <div class="chat-bubble bg-gray-100 text-gray-800 p-3 rounded-lg">
+                  ${result.response}
+                </div>
+              </div>
+            `;
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+          } catch (error) {
+            alert(error.message);
+            typingIndicator.style.display = "none";
+          }
+        });
+
+      // 도움말 아이콘 및 툴팁 기능 추가
+      document.addEventListener("DOMContentLoaded", (event) => {
+        lucide.createIcons();
+
+        const helpIcons = document.querySelectorAll(".help-icon");
+        helpIcons.forEach((icon) => {
+          icon.addEventListener("mouseenter", (e) => {
+            const tooltip = e.target.parentElement.querySelector(".tooltip");
+            tooltip.style.display = "block";
+          });
+          icon.addEventListener("mouseleave", (e) => {
+            const tooltip = e.target.parentElement.querySelector(".tooltip");
+            tooltip.style.display = "none";
+          });
+        });
+      });
+
+      // 섹션별 예시 데이터
+      const sectionExamples = {
+        1: {
+          title: "기본 정보 입력 예시",
+          content: `
+            <ul>
+              <li>이름: 홍길동</li>
+              <li>나이: 17</li>
+              <li>학년: 1학년</li>
+            </ul>
+          `,
+        },
+        2: {
+          title: "학업 정보 입력 예시",
+          content: `
+            <div class="mt-4">
+              <ul>
+                <li>문과 계열:
+                  <ul>
+                    <li>좋아하는 과목: 국어, 사회, 세계사</li>
+                    <li>싫어하는 과목: 수학, 과학</li>
+                  </ul>
+                </li>
+                <li>예체능 계열:
+                  <ul>
+                    <li>좋아하는 과목: 음악, 미술, 체육</li>
+                    <li>싫어하는 과목: 수학, 영어</li>
+                  </ul>
+                </li>
+                <li>이과 계열:
+                  <ul>
+                    <li>좋아하는 과목: 화학, 생명과학, 지구과학</li>
+                    <li>싫어하는 과목: 국어, 한국사</li>
+                  </ul>
+                </li>
+              </ul>
+            </div>
+          `,
+        },
+        3: {
+          title: "진로 및 관심사 입력 예시",
+          content: `
+            <div class="mt-4">
+              <ul>
+                <li>예술 분야:
+                  <ul>
+                    <li>관심사: 현대미술, 디지털 아트, 애니메이션</li>
+                    <li>취미: 그림 그리기, 디지털 드로잉, 캐릭터 디자인</li>
+                    <li>관심 직업군: 일러스트레이터, 애니메이터, 게임 아티스트</li>
+                  </ul>
+                </li>
+                <li>의료 분야:
+                  <ul>
+                    <li>관심사: 생명과학, 응급처치, 공중보건</li>
+                    <li>취미: 의학 다큐멘터리 시청, 응급처치 봉사, 건강 관련 독서</li>
+                    <li>관심 직업군: 의사, 간호사, 의료기기 연구원</li>
+                  </ul>
+                </li>
+                <li>환경 분야:
+                  <ul>
+                    <li>관심사: 기후변화, 생태계 보존, 재생에너지</li>
+                    <li>취미: 환경 캠페인 참여, 제로웨이스트 실천, 식물 기르기</li>
+                    <li>관심 직업군: 환경공학자, 기후변화 전문가, 생태학자</li>
+                  </ul>
+                </li>
+              </ul>
+            </div>
+          `,
+        },
+        4: {
+          title: "활동 및 경험 입력 예시",
+          content: `
+            <ul>
+              <li>동아리 활동: 과학 동아리, 코딩 동아리</li>
+              <li>봉사활동: 지역 도서관 도서 정리, 노인복지관 봉사</li>
+              <li>수상 경력: 교내 과학경시대회 금상, 코딩대회 은상</li>
+            </ul>
+            <div class="mt-4">
+              <h4 class="font-semibold mb-2">분야별 활동 예시:</h4>
+              <ul>
+                <li>인문사회 계열:
+                  <ul>
+                    <li>동아리: 독서토론 동아리, 영어회화 동아리, 모의유엔 동아리</li>
+                    <li>봉사활동: 다문화가정 한국어 교육, 청소년 멘토링</li>
+                    <li>수상: 교내 독서퀴즈대회 대상, 영어말하기대회 우수상</li>
+                  </ul>
+                </li>
+                <li>예술체육 계열:
+                  <ul>
+                    <li>동아리: 밴드부, 미술부, 댄스동아리</li>
+                    <li>봉사활동: 어린이 미술교실 보조, 지역축제 공연</li>
+                    <li>수상: 청소년 미술대전 특선, 교내 체육대회 MVP</li>
+                  </ul>
+                </li>
+                <li>과학기술 계열:
+                  <ul>
+                    <li>동아리: 로봇공학부, 발명동아리, 천체관측동아리</li>
+                    <li>봉사활동: 초등학생 코딩교육, 과학실험 교실 운영</li>
+                    <li>수상: 과학탐구대회 금상, 학생발명경진대회 대상</li>
+                  </ul>
+                </li>
+              </ul>
+            </div>
+          `,
+        },
+        5: {
+          title: "성격 및 특성 입력 예시",
+          content: `
+            <ul>
+              <li>MBTI: INTJ</li>
+              <li>강점: 논리적 사고력, 문제해결능력, 집중력</li>
+              <li>개선하고 싶은 점: 의사소통 능력, 감정 표현, 시간 관리</li>
+            </ul>
+            <div class="mt-4">
+              <h4 class="font-semibold mb-2">성격 유형별 예시:</h4>
+              <ul>
+                <li>외향적 성격:
+                  <ul>
+                    <li>MBTI: ENFJ</li>
+                    <li>강점: 리더십, 의사소통능력, 공감능력</li>
+                    <li>개선점: 즉흥적 결정, 과도한 책임감, 완벽주의</li>
+                  </ul>
+                </li>
+                <li>분석적 성격:
+                  <ul>
+                    <li>MBTI: ISTP</li>
+                    <li>강점: 문제해결력, 실용성, 침착성</li>
+                    <li>개선점: 감정 표현, 장기 계획 수립, 대인관계</li>
+                  </ul>
+                </li>
+                <li>창의적 성격:
+                  <ul>
+                    <li>MBTI: INFP</li>
+                    <li>강점: 창의력, 공감능력, 적응력</li>
+                    <li>개선점: 현실감각, 체계적 업무처리, 결단력</li>
+                  </ul>
+                </li>
+              </ul>
+            </div>
+          `,
+        },
+        6: {
+          title: "학업 및 기술 입력 예시",
+          content: `
+            <ul>
+              <li>학업 성취도: 상위 20%</li>
+              <li>외국어 능력: 영어 중급, 일본어 초급</li>
+              <li>컴퓨터 활용 능력: Python 기초, MS Office 중급</li>
+              <li>독서 습관: 월 2권 (주로 과학 서적)</li>
+            </ul>
+            <div class="mt-4">
+              <h4 class="font-semibold mb-2">계열별 상세 예시:</h4>
+              <ul>
+                <li>이공계열:
+                  <ul>
+                    <li>학업 성취도: 상위 10%</li>
+                    <li>외국어: 영어 고급(TOEIC 900), 중국어 HSK 4급</li>
+                    <li>컴퓨터: Java/Python 중급, AI/ML 기초, CAD 도구 활용</li>
+                    <li>독서: 월 3권 (과학기술, 수학, 공학 서적)</li>
+                  </ul>
+                </li>
+                <li>인문계열:
+                  <ul>
+                    <li>학업 성취도: 상위 15%</li>
+                    <li>외국어: 영어 고급(TOEFL 100), 프랑스어 DELF B1</li>
+                    <li>컴퓨터: 문서작성 고급, 디지털 마케팅 도구 활용</li>
+                    <li>독서: 월 4권 (문학, 역사, 철학 서적)</li>
+                  </ul>
+                </li>
+                <li>예체능계열:
+                  <ul>
+                    <li>학업 성취도: 상위 30%</li>
+                    <li>외국어: 영어 중급, 이탈리아어 기초</li>
+                    <li>컴퓨터: Adobe Creative Suite, 3D 모델링 도구</li>
+                    <li>독서: 월 2권 (예술사, 디자인 서적)</li>
+                  </ul>
+                </li>
+              </ul>
+            </div>
+          `,
+        },
+        7: {
+          title: "미래 계획 및 목표 입력 예시",
+          content: `
+            <ul>
+              <li>롤모델: 일론 머스크</li>
+              <li>장래 희망: AI 연구원</li>
+              <li>향후 5년 목표: 컴퓨터공학과 진학, 인공지능 관련 프로젝트 참여</li>
+              <li>스트레스 관리 방법: 운동, 게임, 음악 감상</li>
+            </ul>
+            <div class="mt-4">
+              <h4 class="font-semibold mb-2">진로별 구체적 예시:</h4>
+              <ul>
+                <li>의료계 진로:
+                  <ul>
+                    <li>롤모델: 이국종 교수</li>
+                    <li>장래 희망: 외상외과 의사</li>
+                    <li>5년 목표: 의예과 진학, 응급구조 자격증 취득, 의료봉사 활동</li>
+                    <li>스트레스 관리: 조깅, 명상, 클래식 음악 감상</li>
+                  </ul>
+                </li>
+                <li>예술계 진로:
+                  <ul>
+                    <li>롤모델: 김정기 작가</li>
+                    <li>장래 희망: 웹툰 작가</li>
+                    <li>5년 목표: 미대 진학, 웹툰 플랫폼 연재 데뷔, 디지털 드로잉 마스터</li>
+                    <li>스트레스 관리: 스케치, 전시회 관람, 산책</li>
+                  </ul>
+                </li>
+                <li>사회과학계 진로:
+                  <ul>
+                    <li>롤모델: 반기문 전 UN 사무총장</li>
+                    <li>장래 희망: 국제기구 전문가</li>
+                    <li>5년 목표: 정치외교학과 진학, TOEFL 고득점, 국제 NGO 인턴십</li>
+                    <li>스트레스 관리: 요가, 독서, 여행</li>
+                  </ul>
+                </li>
+              </ul>
+            </div>
+          `,
+        },
+      };
+
+      // 예시 섹션 업데이트 함수 수정
+      function updateExamples(sectionNumber) {
+        const exampleSection = document.getElementById("section-example");
+        const example = sectionExamples[sectionNumber];
+
+        exampleSection.innerHTML = `
+          <h3 class="text-lg font-semibold mb-4">${example.title}</h3>
+          <div class="bg-gray-50 p-4 rounded-lg">
+            ${example.content}
+          </div>
+        `;
+      }
+
+      // Initial section display
+      showSection(1);
+
+      // Add smooth scrolling to the examples container
+      const examplesContainer = document.querySelector(".examples");
+      examplesContainer.style.scrollBehavior = "smooth";
+
+      // Adjust example content max-height based on viewport height
+      function adjustExampleContentHeight() {
+        const viewportHeight = window.innerHeight;
+        const exampleContents = document.querySelectorAll(".example-content");
+        exampleContents.forEach((content) => {
+          content.style.maxHeight = `${viewportHeight * 0.6}px`;
+        });
+      }
+
+      // Call the function initially and on window resize
+      adjustExampleContentHeight();
+      window.addEventListener("resize", adjustExampleContentHeight);
+
+      // Add hover effect to example titles
+      const exampleTitles = document.querySelectorAll(".example-title");
+      exampleTitles.forEach((title) => {
+        title.addEventListener("mouseenter", () => {
+          title.classList.add("text-indigo-600");
+        });
+        title.addEventListener("mouseleave", () => {
+          title.classList.remove("text-indigo-600");
+        });
+      });
+
+      // API 키 관련 기능
+      document.addEventListener("DOMContentLoaded", () => {
+        const savedApiKey = localStorage.getItem("anthropic_api_key");
+        if (savedApiKey) {
+          document.getElementById("api-key").value = savedApiKey;
+        }
+
+        // API 키 토글 버튼 이벤트 핸들러 수정
+        document
+          .getElementById("toggle-api-key")
+          .addEventListener("click", (e) => {
+            const apiKeyInput = document.getElementById("api-key");
+            const icon = e.currentTarget.querySelector("[data-lucide]");
+            if (icon) {
+              // icon이 존재하는지 확인
+              if (apiKeyInput.type === "password") {
+                apiKeyInput.type = "text";
+                icon.setAttribute("data-lucide", "eye-off");
+              } else {
+                apiKeyInput.type = "password";
+                icon.setAttribute("data-lucide", "eye");
+              }
+              // lucide 아이콘 업데이트
+              if (typeof lucide !== "undefined") {
+                lucide.createIcons();
+              }
+            }
+          });
+
+        // API 키 저장 버튼
+        document
+          .getElementById("save-api-key")
+          .addEventListener("click", () => {
+            const apiKey = document.getElementById("api-key").value.trim();
+            if (!apiKey) {
+              alert("API 키를 입력해주세요.");
+              return;
+            }
+            if (!apiKey.startsWith("sk-ant-")) {
+              alert("올바른 Anthropic API 키 형식이 아닙니다.");
+              return;
+            }
+            localStorage.setItem("anthropic_api_key", apiKey);
+            document.getElementById("api-key-modal").classList.add("hidden");
+          });
+      });
+
+      // API 키 모달 관련 코드
+      document
+        .getElementById("show-api-key-modal")
+        .addEventListener("click", () => {
+          document.getElementById("api-key-modal").classList.remove("hidden");
+        });
+
+      document.getElementById("close-modal").addEventListener("click", () => {
+        document.getElementById("api-key-modal").classList.add("hidden");
+      });
+
+      // 모달 외부 클릭 시 닫기
+      document
+        .getElementById("api-key-modal")
+        .addEventListener("click", (e) => {
+          if (e.target === e.currentTarget) {
+            e.currentTarget.classList.add("hidden");
+          }
+        });
+
+      // 페이지 로드 시 API 키 확인
+      document.addEventListener("DOMContentLoaded", () => {
+        const savedApiKey = localStorage.getItem("anthropic_api_key");
+        if (!savedApiKey) {
+          document.getElementById("api-key-modal").classList.remove("hidden");
+        }
+      });
+
+      // 예시 섹션 높이 동기화 함수 수정
+      function syncExampleHeight() {
+        try {
+          const userInfoForm = document.querySelector(
+            ".bg-white.p-8.rounded-lg.shadow-lg.mb-8"
+          );
+          const examplesSection = document.getElementById("examples-section");
+
+          // 필요한 요소가 없으면 함수 종료
+          if (!userInfoForm || !examplesSection) {
+            return;
+          }
+
+          const exampleSection = examplesSection.querySelector(".bg-white");
+          if (!exampleSection) {
+            return;
+          }
+
+          // requestAnimationFrame을 사용하여 레이아웃 계산 최적화
+          requestAnimationFrame(() => {
+            const formHeight = userInfoForm.offsetHeight;
+            exampleSection.style.minHeight = `${formHeight}px`;
+          });
+        } catch (error) {
+          console.warn("Height sync failed:", error);
+        }
+      }
+
+      // 이벤트 리스너 등록 전에 DOM이 준비되었는지 확인
+      document.addEventListener("DOMContentLoaded", () => {
+        // 초기 높이 동기화
+        syncExampleHeight();
+
+        // resize 이벤트에 디바운스 적용
+        let resizeTimer;
+        window.addEventListener("resize", () => {
+          clearTimeout(resizeTimer);
+          resizeTimer = setTimeout(syncExampleHeight, 100);
+        });
+
+        // 섹션 변경시 높이 동기화
+        const originalShowSection = showSection;
+        showSection = function (sectionNumber) {
+          originalShowSection(sectionNumber);
+          // DOM 업데이트 후 높이 동기화
+          requestAnimationFrame(syncExampleHeight);
+        };
+      });
+
+      document.addEventListener("DOMContentLoaded", function () {
+        // lucide 아이콘 초기화
+        if (typeof lucide !== "undefined") {
+          lucide.createIcons();
+        }
+
+        // 모달 관련 요소들
+        const apiKeyModal = document.getElementById("api-key-modal");
+        const showModalBtn = document.getElementById("show-api-key-modal");
+        const closeModalBtn = document.getElementById("close-modal");
+        const cancelBtn = document.getElementById("cancel-api-key");
+        const saveBtn = document.getElementById("save-api-key");
+        const toggleBtn = document.getElementById("toggle-api-key");
+        const apiKeyInput = document.getElementById("api-key");
+
+        // 모달 관련 함수들
+        const closeModal = () => {
+          if (apiKeyModal) {
+            apiKeyModal.classList.add("hidden");
+            document.body.classList.remove("modal-open");
+          }
+        };
+
+        const openModal = () => {
+          if (apiKeyModal) {
+            apiKeyModal.classList.remove("hidden");
+            document.body.classList.add("modal-open");
+          }
+        };
+
+        // 이벤트 리스너 등록 (null 체크 포함)
+        if (showModalBtn) {
+          showModalBtn.addEventListener("click", openModal);
+        }
+
+        if (closeModalBtn) {
+          closeModalBtn.addEventListener("click", closeModal);
+        }
+
+        if (cancelBtn) {
+          cancelBtn.addEventListener("click", closeModal);
+        }
+
+        if (apiKeyModal) {
+          apiKeyModal.addEventListener("click", (e) => {
+            if (e.target === apiKeyModal) {
+              closeModal();
+            }
+          });
+        }
+
+        // 저장된 API 키 불러오기
+        const savedApiKey = localStorage.getItem("anthropic_api_key");
+        if (savedApiKey && apiKeyInput) {
+          apiKeyInput.value = savedApiKey;
+        }
+
+        // API 키 토글 버튼
+        if (toggleBtn && apiKeyInput) {
+          toggleBtn.addEventListener("click", () => {
+            const type = apiKeyInput.type;
+            apiKeyInput.type = type === "password" ? "text" : "password";
+            const icon = toggleBtn.querySelector("i");
+            if (icon) {
+              icon.setAttribute(
+                "data-lucide",
+                type === "password" ? "eye-off" : "eye"
+              );
+              lucide.createIcons();
+            }
+          });
+        }
+
+        // API 키 저장
+        if (saveBtn && apiKeyInput) {
+          saveBtn.addEventListener("click", () => {
+            const apiKey = apiKeyInput.value.trim();
+            if (!apiKey) {
+              alert("API 키를 입력해주세요.");
+              return;
+            }
+            if (!apiKey.startsWith("sk-ant-")) {
+              alert("올바른 Anthropic API 키 형식이 아닙니다.");
+              return;
+            }
+            localStorage.setItem("anthropic_api_key", apiKey);
+            closeModal();
+          });
+        }
+
+        // ESC 키로 모달 닫기
+        document.addEventListener("keydown", (e) => {
+          if (
+            e.key === "Escape" &&
+            apiKeyModal &&
+            !apiKeyModal.classList.contains("hidden")
+          ) {
+            closeModal();
+          }
+        });
+
+        // 도움말 아이콘 이벤트
+        const helpIcons = document.querySelectorAll(".help-icon");
+        helpIcons.forEach((icon) => {
+          if (icon) {
+            icon.addEventListener("mouseenter", (e) => {
+              const tooltip = e.target.parentElement?.querySelector(".tooltip");
+              if (tooltip) tooltip.style.display = "block";
+            });
+            icon.addEventListener("mouseleave", (e) => {
+              const tooltip = e.target.parentElement?.querySelector(".tooltip");
+              if (tooltip) tooltip.style.display = "none";
+            });
+          }
+        });
+      });
+    </script>
+  </body>
+</html>
