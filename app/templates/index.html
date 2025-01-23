@@ -19,6 +19,9 @@
     <style>
       body {
         font-family: "Noto Sans KR", sans-serif;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
       }
       .chat-bubble {
         max-width: 80%;
@@ -126,6 +129,12 @@
 
       .example-content.active {
         max-height: none;
+      }
+      .footer {
+        margin-top: auto;
+        background-color: #f3f4f6;
+        padding: 1.5rem 0;
+        width: 100%;
       }
     </style>
   </head>
@@ -1079,74 +1088,23 @@
       </div>
     </div>
 
-    <footer class="bg-gray-900 text-gray-300">
-      <div class="container mx-auto px-4 max-w-8xl">
-        <!-- 메인 푸터 콘텐츠 -->
-        <div
-          class="flex flex-col md:flex-row justify-between items-start gap-12 px-6 py-8"
-        >
-          <!-- 서비스 소개 섹션 -->
-          <div class="space-y-4">
-            <h3 class="text-lg font-bold text-white">AI 진로 탐색</h3>
-            <p class="text-gray-400 leading-relaxed">
-              AI 기술을 활용하여 고등학생들의 적성과 흥미를 분석하고,<br />
-              맞춤형 진로 방향을 제시하는 혁신적인 서비스입니다.
-            </p>
+    <footer class="footer">
+      <div class="container mx-auto px-4">
+        <div class="flex flex-col md:flex-row justify-between items-center">
+          <div class="text-sm text-gray-600">
+            © 2024 AI 진로 탐색 서비스. All rights reserved.
           </div>
-
-          <!-- 고객지원 섹션 -->
-          <div class="space-y-4">
-            <h3 class="text-lg font-semibold text-white">문의</h3>
-            <ul class="space-y-3">
-              <li>
-                <a
-                  href="mailto:sungblab@gmail.com"
-                  class="flex items-center text-gray-400 hover:text-white transition-colors"
-                >
-                  <span>sungblab@gmail.com</span>
-                </a>
-              </li>
-              <li>
-                <a
-                  href="https://sungblab.vercel.app"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="개발자 블로그 가기"
-                  class="flex items-center text-gray-400 hover:text-white transition-colors"
-                >
-                  <span>개발자 블로그 가기</span>
-                </a>
-              </li>
-            </ul>
-          </div>
-        </div>
-
-        <!-- 구분선 -->
-        <div class="border-t border-gray-800">
-          <div class="px-6 py-4">
-            <div
-              class="flex flex-col md:flex-row justify-between items-center space-y-2 md:space-y-0"
+          <div class="mt-4 md:mt-0">
+            <a
+              href="/privacy"
+              class="text-sm text-gray-600 hover:text-gray-900 mx-2"
+              >개인정보처리방침</a
             >
-              <!-- 저작권 정보 -->
-              <div class="text-gray-400 text-sm">
-                © 2024 AI 진로 탐색 서비스. All rights reserved.
-              </div>
-              <!-- 기타 링크 -->
-              <div class="flex space-x-6">
-                <a
-                  href="/privacy"
-                  class="text-gray-400 hover:text-white text-sm transition-colors"
-                >
-                  개인정보처리방침
-                </a>
-                <a
-                  href="/terms"
-                  class="text-gray-400 hover:text-white text-sm transition-colors"
-                >
-                  이용약관
-                </a>
-              </div>
-            </div>
+            <a
+              href="/terms"
+              class="text-sm text-gray-600 hover:text-gray-900 mx-2"
+              >이용약관</a
+            >
           </div>
         </div>
       </div>
