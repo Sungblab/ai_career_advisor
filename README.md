@@ -25,7 +25,6 @@
 - Database: SQLite
 - AI: Anthropic Claude API
 - Frontend: HTML, TailwindCSS, JavaScript
-- 폰트: Noto Sans KR
 
 ## 설치 방법 (Anaconda 환경)
 
@@ -94,44 +93,6 @@
 - 입력된 정보를 바탕으로 AI와 실시간 상담 진행
 - 진로, 학업, 적성 등에 대해 자유롭게 질문
 - AI의 분석과 조언을 통해 진로 방향 설정
-
-## 주요 파일 구조
-
-project/
-├── app/
-│ ├── templates/
-│ │ ├── index.html
-│ │ ├── privacy.html
-│ │ └── terms.html
-│ ├── models/
-│ │ └── models.py
-│ ├── routes/
-│ │ └── main.py
-│ ├── utils.py
-│ └── init.py
-├── config.py
-├── requirements.txt
-├── run.py
-└── README.md
-
-## 보안 및 주의사항
-
-- API 키 관리
-
-  - API 키는 절대 공개되거나 공유되어서는 안 됨
-  - 키는 클라이언트 측에서 안전하게 저장됨
-  - 주기적인 키 갱신 권장
-
-- 개인정보 보호
-
-  - 입력된 개인정보는 상담 목적으로만 사용
-  - 세션 종료 후 모든 정보는 자동 삭제
-  - 민감한 개인정보 입력 자제
-
-- 서비스 이용
-  - AI 상담은 참고용으로만 활용
-  - 중요한 진로 결정은 전문 상담사와 상담 권장
-  - 서비스 이용 중 발생하는 문제는 개발자에게 즉시 보고
 
 ## 라이선스
 
